@@ -1,0 +1,5 @@
+build/
+coverity/
+*.pyc
+.sconsign.dblite
+*.rej
