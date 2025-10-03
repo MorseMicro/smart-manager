@@ -1,0 +1,72 @@
+# Copyright 2023 Morse Micro
+# SPDX-License-Identifier: GPL-2.0-or-later OR LicenseRef-MorseMicroCommercial
+
+import os
+
+env = Environment(tools=['default', 'style', 'log'],
+                    ENV=os.environ.copy(),
+                    CC=os.environ.get('CC', 'gcc'), LD=os.environ.get('LD', 'ld'))
+
+# Set custom prefix and suffix
+env.Replace(SHLIBPREFIX='', SHLIBSUFFIX='.mmext')
+
+def get_git_desc():
+    ver = ARGUMENTS.get('MORSE_VERSION', 0)
+    if type(ver) is int:
+        return "Undefined"
+    return ver
+
+# Find all SConscript files recursively
+def find_sconscripts(start_dir):
+    sconscript_files = []
+    for root, dirs, files in os.walk(start_dir):
+        for file in files:
+            if file == 'SConscript':
+                # Append the full path of the SConscript file
+                sconscript_files.append(os.path.join(root, file))
+    return sconscript_files
+
+# Example: Assuming this SConscript is in a parent directory and you want to find
+# all SConscript files in subdirectories.
+sconscript_files = find_sconscripts('modules')
+
+env.Append(
+    CFLAGS=["-fPIC", "-O2", "-Wall", "-Werror", '-DMORSE_VERSION=\\"' + get_git_desc() + '\\"']
+)
+env.Append(LINKFLAGS=["-rdynamic", "-fPIC", "-Wl,--export-dynamic"])
+
+Export('env')
+
+incs = ['.', 'include']
+env.Append(CPPPATH=list(map(lambda x: Dir(x).srcnode(), incs)))
+
+env.Append(LIBS=['pthread', 'libconfig', 'dl'])
+
+backend = env.SConscript('backend/SConscript')
+engine = RecursiveGlob('engine/', '*.c')
+misc = RecursiveGlob('misc/', '*.c')
+
+style = env.Style('style.txt', engine + backend['style'])
+
+env.Alias('lint', style)
+
+core = env.Object([
+    engine, misc
+]) + backend['objs']
+
+items = []
+# Execute each found SConscript file
+for sconscript in sconscript_files:
+    items += env.SConscript(sconscript)
+
+apps = [
+    env.Program('smart_manager', [
+        core,
+        'smart_manager_main.c'
+    ]),
+] + items
+
+Alias('apps', apps)
+
+if not env.GetOption('clean'):
+    Default(apps)

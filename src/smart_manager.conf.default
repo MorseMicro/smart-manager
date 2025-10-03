@@ -1,0 +1,98 @@
+# Copyright Morse Micro 2023
+# Morse Micro Smart Manager configuration file
+
+# HaLow WLAN interface name
+interface_name = "wlan0"
+
+# Module Configuration
+module_dirs: ["/usr/share/morsemicro/"]
+modules: ["dcs"]
+
+# Log levels as follows:
+#       NONE            0
+#       ERROR           1
+#       WARN            2
+#       INFO            3
+#       DEBUG           4
+#       VERBOSE         5
+logging: {
+        level = 3
+        colours = True
+}
+
+
+# Backend specific configuration
+backends: {
+        # Hostapd config
+        hostapd: {
+                # Control path for hostapd CLI
+                control_path : "/var/run/hostapd_s1g"
+        }
+}
+
+# Datalog configuration. If not specified, datalogs will default to off
+datalog: {
+        # Root directory to store data logs
+        root_dir = "/var/log/smart_manager"
+
+        dcs : {
+                enabled = true
+        }
+        nl80211: {
+                enabled = false
+        }
+        hostapd: {
+                enabled = false
+        }
+        morsectrl: {
+                enabled = false
+        }
+}
+
+# Dynamic channel selection configuration
+dcs : {
+        # Currently enabled algorithm. Options are:
+        #    - "ewma"
+        #    - "sample_and_hold"
+        algo_type: "ewma"
+
+        # Exponential weighted moving average function. Evaluates every scan round.
+        ewma: {
+                # DCS EWMA weight for the channel metric (max 100)
+                ewma_alpha = 30
+                # Threshold percentage of channel score to be considered better
+                threshold_percentage = 5
+                # Number of scan rounds in a row with a better channel to trigger a switch
+                rounds_for_csa = 10
+                # Time to wait between scanning each channel within a scan round
+                sec_per_scan = 2
+                # Time to wait before starting another scan round
+                sec_per_round = 10
+        }
+
+        # Accumulated mean. Evaluates after 'rounds_for_eval' rounds.
+        sample_and_hold: {
+                # Number of scan rounds until evaluating and potentially triggering a switch
+                rounds_for_eval: 20
+                # Threshold percentage of channel score to be considered better
+                threshold_percentage: 5
+                # Time to wait between scanning each channel within a scan round
+                sec_per_scan = 2
+                # Time to wait before starting another scan round
+                sec_per_round = 10
+        }
+
+        # enable / disable CSA
+        trigger_csa = True
+        # number of DTIM beacons to include channel switch announcement IE before actually moving
+        dtims_for_csa = 10
+
+        # Test mode parameters
+        test :
+        {
+                # Test mode enabled
+                enabled = False
+                # Filepath to test mode samples
+                filepath = "test_samples.csv"
+        }
+}

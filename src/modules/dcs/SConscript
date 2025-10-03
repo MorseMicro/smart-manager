@@ -1,0 +1,15 @@
+# Copyright 2024 Morse Micro
+# SPDX-License-Identifier: GPL-2.0-or-later OR LicenseRef-MorseMicroCommercial
+
+Import('env')
+
+env = env.Clone()
+
+incs = ['.']
+env.Append(CPPPATH=list(map(lambda x: Dir(x).srcnode(), incs)))
+
+src = RecursiveGlob('.', '*.c')
+
+dcs_lib = env.SharedLibrary('dcs', [src])
+
+Return('dcs_lib')
