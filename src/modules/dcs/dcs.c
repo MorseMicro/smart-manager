@@ -332,7 +332,11 @@ static void init_scan_list(struct dcs *context)
             context->all_channels[i].ch.frequency_khz,
             context->all_channels[i].ch.bandwidth_mhz);
 
-        if (chans[i].ch.bandwidth_mhz == bw && primary_channel_is_available(context, chans[i]))
+        /* If test mode is disabled, candidate channels are of the same operating bandwidth, and
+         * have an enabled primary channel. If test mode is enabled, candidate channels are derived
+         * directly from test sample measurement file. */
+        if (context->test.enabled ||
+            (chans[i].ch.bandwidth_mhz == bw && primary_channel_is_available(context, chans[i])))
         {
             LOG_INFO("Channel %u: %u kHz %u MHz BW added to scan list\n",
                 context->all_channels[i].ch.channel_s1g,

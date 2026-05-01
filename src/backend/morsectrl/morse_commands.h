@@ -18,34 +18,35 @@
 
 #include <endian.h>
 
-#define PACKED __attribute__((packed))
+#define PACKED                 __attribute__((packed))
 
-#define MORSE_CMD_SEMVER_MAJOR  56
-#define MORSE_CMD_SEMVER_MINOR  3
-#define MORSE_CMD_SEMVER_PATCH  0
+#define MORSE_CMD_SEMVER_MAJOR 56
+#define MORSE_CMD_SEMVER_MINOR 8
+#define MORSE_CMD_SEMVER_PATCH 0
 
-#define MORSE_CMD_TYPE_REQ  BIT(0)
-#define MORSE_CMD_TYPE_RESP BIT(1)
-#define MORSE_CMD_TYPE_EVT  BIT(2)
+#define MORSE_CMD_TYPE_REQ     BIT(0)
+#define MORSE_CMD_TYPE_RESP    BIT(1)
+#define MORSE_CMD_TYPE_EVT     BIT(2)
 
-#define MORSE_CMD_SSID_MAX_LEN  32
-#define MORSE_CMD_MAC_ADDR_LEN  6
+#define MORSE_CMD_SSID_MAX_LEN 32
+#define MORSE_CMD_MAC_ADDR_LEN 6
 
-enum morse_cmd_id {
+enum morse_cmd_id
+{
     /* Standard commands starting at 0x0000 */
-    MORSE_CMD_ID_SET_CHANNEL            = 0x0001,
-    MORSE_CMD_ID_GET_VERSION            = 0x0002,
+    MORSE_CMD_ID_SET_CHANNEL = 0x0001,
+    MORSE_CMD_ID_GET_VERSION = 0x0002,
 
     /* Driver commands starting at 0xA000 */
-    MORSE_CMD_ID_DRIVER_START           = 0xA000,
+    MORSE_CMD_ID_DRIVER_START = 0xA000,
     MORSE_CMD_ID_GET_AVAILABLE_CHANNELS = 0xA011,
-    MORSE_CMD_ID_OCS_DRIVER             = 0xA017,
-    MORSE_CMD_ID_CONFIG_RAW             = 0xA021,
-    MORSE_CMD_ID_CONFIG_BSS_STATS       = 0xA022,
+    MORSE_CMD_ID_OCS_DRIVER = 0xA017,
+    MORSE_CMD_ID_CONFIG_RAW = 0xA021,
+    MORSE_CMD_ID_CONFIG_BSS_STATS = 0xA022,
     MORSE_CMD_ID_DRIVER_END,
 
     /* Events starting at 0x4000 */
-    MORSE_CMD_ID_EVT_OCS_DONE           = 0x4006,
+    MORSE_CMD_ID_EVT_OCS_DONE = 0x4006,
 };
 
 /**
@@ -56,9 +57,15 @@ struct PACKED morse_cmd_mac_addr
     uint8_t octet[MORSE_CMD_MAC_ADDR_LEN];
 };
 
-enum morse_cmd_ocs_subcmd {
+enum morse_cmd_ocs_subcmd
+{
     MORSE_CMD_OCS_SUBCMD_CONFIG = 1,
     MORSE_CMD_OCS_SUBCMD_STATUS = 2,
+};
+
+enum morse_cmd_headless_cfg_option
+{
+    MORSE_CMD_HEADLESS_CFG_OPTION_KEEP_IFACES = 1,
 };
 
 /**
@@ -98,23 +105,24 @@ struct PACKED morse_cmd_header
  */
 #define MORSE_CMD_CHANNEL_FREQ_NOT_SET 0xFFFFFFFF
 
-enum morse_cmd_dot11_proto_mode {
+enum morse_cmd_dot11_proto_mode
+{
     /** 802.11ah S1G mode */
-    MORSE_CMD_DOT11_PROTO_MODE_AH       = 0,
+    MORSE_CMD_DOT11_PROTO_MODE_AH = 0,
     /** 802.11b (DSSS only) mode */
-    MORSE_CMD_DOT11_PROTO_MODE_B        = 1,
+    MORSE_CMD_DOT11_PROTO_MODE_B = 1,
     /** 802.11bg (Legacy only) mode */
-    MORSE_CMD_DOT11_PROTO_MODE_BG       = 2,
+    MORSE_CMD_DOT11_PROTO_MODE_BG = 2,
     /** 802.11gn (OFDM only) mode */
-    MORSE_CMD_DOT11_PROTO_MODE_GN       = 3,
+    MORSE_CMD_DOT11_PROTO_MODE_GN = 3,
     /** 802.11bgn (Full compatibility) mode */
-    MORSE_CMD_DOT11_PROTO_MODE_BGN      = 4,
+    MORSE_CMD_DOT11_PROTO_MODE_BGN = 4,
     /** Invalid mode, PHY is not configured */
-    MORSE_CMD_DOT11_PROTO_MODE_INVALID  = 5,
+    MORSE_CMD_DOT11_PROTO_MODE_INVALID = 5,
 };
 
 /**
- * morse_cmd_req_set_channel - request message for SET_CHANNEL
+ * @brief Request message for SET_CHANNEL
  *
  * In 802.11ah a BSS supports operating channel widths of 1, 2, 4, 8 and 16 MHz
  * and is required to use a 1MHz or 2MHz primary channel width.
@@ -165,7 +173,7 @@ struct PACKED morse_cmd_req_set_channel
 };
 
 /**
- * morse_cmd_resp_set_channel - response message for SET_CHANNEL
+ * @brief Response message for SET_CHANNEL
  *
  * Returns the power of the channel set
  */
@@ -179,14 +187,14 @@ struct PACKED morse_cmd_resp_set_channel
 #define MORSE_CMD_MAX_VERSION_LEN 128
 
 /**
- * morse_cmd_req_get_version - request message for GET_VERSION
+ * @brief Request message for GET_VERSION
  */
 struct PACKED morse_cmd_req_get_version
 {
 };
 
 /**
- * morse_cmd_resp_get_version - response message for GET_VERSION
+ * @brief Response message for GET_VERSION
  *
  * Structure for a get version confirm
  */
@@ -216,7 +224,7 @@ struct PACKED morse_cmd_channel_info
 };
 
 /**
- * morse_cmd_resp_get_available_channels - response message for GET_AVAILABLE_CHANNELS
+ * @brief Response message for GET_AVAILABLE_CHANNELS
  */
 struct PACKED morse_cmd_resp_get_available_channels
 {
@@ -244,20 +252,22 @@ struct PACKED morse_cmd_ocs_driver_resp
 };
 
 /**
- * morse_cmd_req_ocs_driver - request message for OCS_DRIVER
+ * @brief Request message for OCS_DRIVER
  */
 struct PACKED morse_cmd_req_ocs_driver
 {
     /** Subcommand value @ref morse_cmd_ocs_subcmd */
     __le32 subcmd;
-    union {
+
+    union
+    {
         uint8_t opaque[0];
         struct morse_cmd_ocs_driver_req config;
     };
 };
 
 /**
- * morse_cmd_resp_ocs_driver - response message for OCS_DRIVER
+ * @brief Response message for OCS_DRIVER
  *
  * @note driver response should not differ from the firmware response @ref struct morse_cmd_resp_ocs
  */
@@ -265,26 +275,35 @@ struct PACKED morse_cmd_resp_ocs_driver
 {
     /** Subcommand value @ref morse_cmd_ocs_subcmd */
     __le32 subcmd;
-    union {
+
+    union
+    {
         uint8_t opaque[0];
         struct morse_cmd_ocs_driver_resp ocs_status;
     };
 };
 
-#define MORSE_CMD_CFG_RAW_FLAG_ENABLE   BIT(0)
-#define MORSE_CMD_CFG_RAW_FLAG_DELETE   BIT(1)
-#define MORSE_CMD_CFG_RAW_FLAG_UPDATE   BIT(2)
-#define MORSE_CMD_CFG_RAW_FLAG_DYNAMIC  BIT(3)
+#define MORSE_CMD_CFG_RAW_FLAG_ENABLE  BIT(0)
+#define MORSE_CMD_CFG_RAW_FLAG_DELETE  BIT(1)
+#define MORSE_CMD_CFG_RAW_FLAG_UPDATE  BIT(2)
+#define MORSE_CMD_CFG_RAW_FLAG_DYNAMIC BIT(3)
 
-enum morse_cmd_raw_tlv_tag {
-    MORSE_CMD_RAW_TLV_TAG_SLOT_DEF      = 0,
-    MORSE_CMD_RAW_TLV_TAG_GROUP         = 1,
-    MORSE_CMD_RAW_TLV_TAG_START_TIME    = 2,
-    MORSE_CMD_RAW_TLV_TAG_PRAW          = 3,
-    MORSE_CMD_RAW_TLV_TAG_BCN_SPREAD    = 4,
-    MORSE_CMD_RAW_TLV_TAG_DYN_GLOBAL    = 5,
-    MORSE_CMD_RAW_TLV_TAG_DYN_CONFIG    = 6,
-    MORSE_CMD_RAW_TLV_TAG_LAST          = 7,
+/** RAW special AID to reserve the medium for DCS */
+#define MORSE_CMD_RAW_RESERVED_AID_DCS 2008
+
+/** RAW special AID to reserve the medium for AP's downlink */
+#define MORSE_CMD_RAW_RESERVED_AID_DOWNLINK 2009
+
+enum morse_cmd_raw_tlv_tag
+{
+    MORSE_CMD_RAW_TLV_TAG_SLOT_DEF = 0,
+    MORSE_CMD_RAW_TLV_TAG_GROUP = 1,
+    MORSE_CMD_RAW_TLV_TAG_START_TIME = 2,
+    MORSE_CMD_RAW_TLV_TAG_PRAW = 3,
+    MORSE_CMD_RAW_TLV_TAG_BCN_SPREAD = 4,
+    MORSE_CMD_RAW_TLV_TAG_DYN_GLOBAL = 5,
+    MORSE_CMD_RAW_TLV_TAG_DYN_CONFIG = 6,
+    MORSE_CMD_RAW_TLV_TAG_LAST = 7,
 };
 
 /**
@@ -388,7 +407,7 @@ union PACKED morse_cmd_raw_tlvs
 };
 
 /**
- * morse_cmd_req_config_raw - request message for CONFIG_RAW
+ * @brief Request message for CONFIG_RAW
  */
 struct PACKED morse_cmd_req_config_raw
 {
@@ -404,7 +423,7 @@ struct PACKED morse_cmd_req_config_raw
 };
 
 /**
- * morse_cmd_req_config_bss_stats - request message for CONFIG_BSS_STATS
+ * @brief Request message for CONFIG_BSS_STATS
  */
 struct PACKED morse_cmd_req_config_bss_stats
 {
@@ -415,7 +434,7 @@ struct PACKED morse_cmd_req_config_bss_stats
 };
 
 /**
- * morse_cmd_evt_ocs_done - event message for OCS_DONE
+ * @brief Event message for OCS_DONE
  */
 struct PACKED morse_cmd_evt_ocs_done
 {

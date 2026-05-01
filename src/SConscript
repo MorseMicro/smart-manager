@@ -16,19 +16,6 @@ def get_git_desc():
         return "Undefined"
     return ver
 
-# Find all SConscript files recursively
-def find_sconscripts(start_dir):
-    sconscript_files = []
-    for root, dirs, files in os.walk(start_dir):
-        for file in files:
-            if file == 'SConscript':
-                # Append the full path of the SConscript file
-                sconscript_files.append(os.path.join(root, file))
-    return sconscript_files
-
-# Example: Assuming this SConscript is in a parent directory and you want to find
-# all SConscript files in subdirectories.
-sconscript_files = find_sconscripts('modules')
 
 env.Append(
     CFLAGS=["-fPIC", "-O2", "-Wall", "-Werror", '-DMORSE_VERSION=\\"' + get_git_desc() + '\\"']
@@ -54,10 +41,18 @@ core = env.Object([
     engine, misc
 ]) + backend['objs']
 
+# Names of loadable modules. Assumes they each have a SConscript in their directories
+module_names = ['dcs']
+
 items = []
-# Execute each found SConscript file
-for sconscript in sconscript_files:
-    items += env.SConscript(sconscript)
+# Execute SConscript file for each module
+for module in module_names:
+    module_src = str(Dir(f"modules/{module}").srcnode())
+    sconscript_file = os.path.join(module_src, "SConscript")
+    if not os.path.isfile(sconscript_file):
+        print(f"WARNING: Could not find SConscript for module {module} and path {sconscript_file}")
+        continue
+    items += env.SConscript(sconscript_file, variant_dir=f'modules/{module}', duplicate=0)
 
 apps = [
     env.Program('smart_manager', [

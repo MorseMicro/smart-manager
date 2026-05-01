@@ -84,5 +84,8 @@ void mmsm_assert_failed(const char *cond, const char *func, int line);
 /** Maximum element */
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
+/** Minimum element */
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+
 /** Convert milliseconds to microseconds */
 #define MSEC_TO_USEC(msec)      ((msec) * 1000U)
