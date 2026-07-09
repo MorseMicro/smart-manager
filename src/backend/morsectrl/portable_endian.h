@@ -7,8 +7,6 @@
 
 #include <stdint.h>
 
-/* @MORSE_INTERNAL_NOT_PACKAGED_STOP */
-
 /* These are included in linux/types.h through nl80211.h and are missing elsewhere */
 #if !defined(__linux__) && !defined(__CYGWIN__)
 typedef uint16_t __le16;
@@ -19,13 +17,7 @@ typedef uint64_t __le64;
 typedef uint64_t __be64;
 #endif
 
-/* @MORSE_INTERNAL_NOT_PACKAGED_START */
-#ifndef __CHECKER__        /* Sparse is running */
-/* @MORSE_INTERNAL_NOT_PACKAGED_STOP */
 #define __force
-/* @MORSE_INTERNAL_NOT_PACKAGED_START */
-#endif
-/* @MORSE_INTERNAL_NOT_PACKAGED_STOP */
 #define __sle16 __le16
 #define __sle32 __le32
 #define __sle64 __le64
